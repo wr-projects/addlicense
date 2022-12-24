@@ -20,6 +20,7 @@ jobs:
           allowed-endpoints: >
             api.github.com:443
             github.com:443
+
       # More info: https://github.com/peter-murray/workflow-application-token-action.
       - name: Get token
         id: get_token
@@ -40,4 +41,6 @@ jobs:
         uses: rovast/sync-upstream-repo@c90f27f86cd67d3f83899cd52311a3d739efb235
         with:
           upstream_repo: https://github.com/google/addlicense
+          upstream_branch: master
+          downstream_branch: master
           token: ${{ steps.get_token.outputs.token }}
