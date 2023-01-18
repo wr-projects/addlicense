@@ -4,44 +4,40 @@ name: Pipeline - Auto Sync
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '*/15 * * * *'
 
 jobs:
   build:
     name: Auto Sync
     runs-on: ubuntu-latest
     steps:
-    # More info: https://github.com/step-security/harden-runner.
-      - name: Harden Runner
-        id: harden_runner
-        uses: step-security/harden-runner@ebacdc22ef6c2cfb85ee5ded8f2e640f4c776dd5
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            api.github.com:443
-            github.com:443
-
       # More info: https://github.com/peter-murray/workflow-application-token-action.
       - name: Get token
         id: get_token
         uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db
         with:
-          application_id: ${{ secrets.ID_AUTOSYNCBOT }}
-          application_private_key: ${{ secrets.PEM_AUTOSYNCBOT }}
+          application_id: ${{ secrets.ID_AUTOSYNCHROBOT }}
+          application_private_key: ${{ secrets.PEM_AUTOSYNCHROBOT }}
 
       # More info: https://github.com/actions/checkout.
       - name: Checkout & Authentication
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
+          repository: wr-projects/1password-teams-open-source
           token: ${{ steps.get_token.outputs.token }}
           persist-credentials: false
+      
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config --global user.name ${{ secrets.AUTOSYNCHRO_CI_NAME }}
+          git config --global user.email ${{ secrets.AUTOSYNCHRO_CI_EMAIL }}
 
-      # More info: https://github.com/rovast/sync-upstream-repo/.
+      # More info: https://github.com/rovast/sync-upstream-repo.
       - name: GitHub Sync to Upstream Repository
-        uses: rovast/sync-upstream-repo@c90f27f86cd67d3f83899cd52311a3d739efb235
+        uses: denis-tingajkin/sync-files@7cf3a71d4530214ecee324faf12cf884a275d366
         with:
-          upstream_repo: https://github.com/google/addlicense
-          upstream_branch: master
-          downstream_branch: master
+          upstream_repo: https://github.com/google/addlicense # change this
+          upstream_branch: master # change this
+          downstream_branch: master # change this
           token: ${{ steps.get_token.outputs.token }}
